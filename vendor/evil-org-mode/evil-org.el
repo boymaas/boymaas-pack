@@ -64,11 +64,11 @@
 	  'org-backward-heading-same-level)
   "gl" 'outline-next-visible-heading
   "t" 'org-todo
-  "T" '(lambda () (interactive) (evil-org-eol-call '(org-insert-todo-heading nil)))
+;; "T" '(lambda () (interactive) (evil-org-eol-call '(org-insert-todo-heading nil)))
   "H" 'org-beginning-of-line
   "L" 'org-end-of-line
   ";t" 'org-show-todo-tree
-  "o" '(lambda () (interactive) (evil-org-eol-call 'always-insert-item))
+;; "o" '(lambda () (interactive) (evil-org-eol-call 'always-insert-item))
   "O" '(lambda () (interactive) (evil-org-eol-call 'org-insert-heading))
   "$" 'org-end-of-line
   "^" 'org-beginning-of-line

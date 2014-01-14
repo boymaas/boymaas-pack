@@ -4,7 +4,9 @@
 (require 'package)
 (add-to-list 'package-archives
              '("marmalade" .
-               "http://marmalade-repo.org/packages/"))
+               "http://marmalade-repo.org/packages/")
+
+             '("melpa" . "http://melpa.milkbox.net/packages/"))
 (package-initialize)
 
 ;; Global line number mode with padded
@@ -24,6 +26,7 @@
   :surpress-operator t
   (interactive "P<x>")
   (evil-open-below 1)
+  (evil-beginning-of-line)
   (evil-paste-after count register yank-handler)
   (evil-force-normal-state)
   (evil-previous-line))
@@ -47,18 +50,22 @@
 
 (define-key evil-normal-state-map ";gs" 'magit-status)
 
-(define-key evil-normal-state-map ";b" 'ibuffer)
-(define-key evil-normal-state-map ";B" 'ibuffer-other-window)
+(define-key evil-normal-state-map ";b" 'ido-switch-buffer)
+(define-key evil-normal-state-map ";B" 'ibuffer)
 
 (define-key evil-normal-state-map ";f" 'projectile-find-file)
 (define-key evil-normal-state-map ";F" 'projectile-find-file-other-window)
 (define-key evil-normal-state-map ";el" 'dired)
+(define-key evil-normal-state-map ";j" 'bookmark-jump)
+(define-key evil-normal-state-map ";J" 'bookmark-jump-other-window)
+
+
 
 (defun open-test-in-split-window ()
   (interactive)
   (delete-other-windows)
   (split-window-right)
-  (projectile-toggle-between-implementation-and-test))
+  (rspec-toggle-spec-and-target))
 
 (define-key evil-normal-state-map ";." 'open-test-in-split-window)
 
@@ -118,6 +125,8 @@
 
 (define-key evil-normal-state-map ";ee" 'nrepl-eval-expression-at-point)
 (define-key evil-normal-state-map ";eb" 'nrepl-eval-buffer)
+(define-key evil-normal-state-map ";ef" 'nrepl-load-file)
+
 (define-key evil-normal-state-map ";en" 'nrepl-eval-ns-form)
 (define-key evil-visual-state-map ";er" 'nrepl-eval-region)
 (define-key evil-normal-state-map ";em" 'nrepl-macroexpand-1)

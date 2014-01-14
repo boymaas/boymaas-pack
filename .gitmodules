@@ -1,0 +1,6 @@
+[submodule "vendor/submodules/evil-org-mode"]
+	path = vendor/submodules/evil-org-mode
+	url = https://github.com/edwtjo/evil-org-mode.git
+[submodule "vendor/submodules/ruby-electric"]
+	path = vendor/submodules/ruby-electric
+	url = https://github.com/qoobaa/ruby-electric.git

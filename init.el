@@ -8,6 +8,8 @@
 (live-load-config-file "emacs-nav.el")
 ;;(live-load-config-file "sr-speedbar.el")
 (live-load-config-file "rcodetools.el")
+(live-load-config-file "evil-org-mode.el")
+;;(live-load-config-file "ruby-electric.el")
 
 ;; byte compile everything that needs to be compiled for
 ;; faster startup

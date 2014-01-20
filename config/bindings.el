@@ -14,6 +14,13 @@
 (global-linum-mode)
 (setq linum-format "%3d ")
 
+(setq tab-width 2)
+(add-hook 'coffee-mode-hook (lambda ()
+                             (setq evil-shift-width 2)
+                             (setq tab-width 2)
+                             (local-unset-key "TAB")))
+
+
 ;; Ruby stuff
 
 ;; TODO: now installed via package system. Make this independent of that
@@ -21,7 +28,7 @@
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 ;; Evil paste fix
-(evil-define-command bmaas-evil-paste-after
+(evil-define-command bmaas-evil-paste-after-exp
   (count &optional register yank-handler)
   :surpress-operator t
   (interactive "P<x>")
@@ -31,7 +38,7 @@
   (evil-force-normal-state)
   (evil-previous-line))
 
-(define-key evil-normal-state-map "p" 'bmaas-evil-paste-after)
+(define-key evil-normal-state-map "p" 'evil-paste-after)
 
 ;; For example:
 ;;(define-key global-map (kbd "C-+") 'text-scale-increase)
@@ -59,15 +66,34 @@
 (define-key evil-normal-state-map ";j" 'bookmark-jump)
 (define-key evil-normal-state-map ";J" 'bookmark-jump-other-window)
 
+(defvar boymaas-test-toggle-func 'projectile-toggle-between-implementation-and-test)
 
+;; Paredit customizations
+(define-key paredit-mode-map (read-kbd-macro "C-<up>") 'paredit-raise-sexp)
 
-(defun open-test-in-split-window ()
+(defun boymaas-open-test-in-split-window ()
   (interactive)
   (delete-other-windows)
   (split-window-right)
-  (rspec-toggle-spec-and-target))
+  ;(rspec-toggle-spec-and-target)
+  (funcall boymaas-test-toggle-func))
 
-(define-key evil-normal-state-map ";." 'open-test-in-split-window)
+(define-key evil-normal-state-map ";." 'boymaas-open-test-in-split-window)
+(defun boymaas-ruby-test-mappings ()
+  (interactive)
+  (setq boymaas-test-toggle-func 'rspec-toggle-spec-and-target)
+  (define-key evil-normal-state-map ";t" 'rspec-verify)
+  (define-key evil-normal-state-map ";T" 'rspec-verify-single)
+  (define-key evil-normal-state-map ";r" 'rspec-rerun)
+  (define-key evil-normal-state-map ";a" 'rspec-verify-all))
+(add-hook 'ruby-mode-hook 'boymaas-ruby-test-mappings)
+
+(defun boymaas-clojure-test-mappings ()
+  (interactive)
+  (setq boymaas-test-toggle-func 'clojure-jump-between-tests-and-code)
+  (define-key evil-normal-state-map ";t" 'clojure-test-run-test)
+  (define-key evil-normal-state-map ";a" 'clojure-test-run-tests))
+(add-hook 'clojure-mode-hook 'boymaas-clojure-test-mappings)
 
 
 ;; Projectile bindings
@@ -183,3 +209,18 @@
 ;; Not sure what behavior this changes, but might as well set it, seeing the Elisp manual's
 ;; documentation of it.
 ;;(set-quit-char (kbd "C-c"))
+
+;; Load per project config files!
+
+(defun clojure-test-implementation-with-prefix-for (namespace)
+  "Returns the path of the src file for the given test namespace."
+  (let* ((namespace (clojure-underscores-for-hyphens namespace))
+         (segments (split-string namespace "\\."))
+         (namespace-end (split-string (car (last segments)) "_"))
+         (namespace-end (mapconcat 'identity (butlast namespace-end 1) "_"))
+         (impl-segments (append (butlast segments 1) (list namespace-end))))
+    (format "%s/src/clj/%s.clj"
+            (locate-dominating-file buffer-file-name "src/")
+            (mapconcat 'identity impl-segments "/"))))
+
+(setq clojure-test-implementation-for-fn 'clojure-test-implementation-with-prefix-for)

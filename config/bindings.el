@@ -92,7 +92,10 @@
   (interactive)
   (setq boymaas-test-toggle-func 'clojure-jump-between-tests-and-code)
   (define-key evil-normal-state-map ";t" 'clojure-test-run-test)
-  (define-key evil-normal-state-map ";a" 'clojure-test-run-tests))
+  (define-key evil-normal-state-map ";a" 'clojure-test-run-tests)
+  (define-key evil-normal-state-map (read-kbd-macro "C-]") 'nrepl-jump)
+  (define-key evil-normal-state-map (read-kbd-macro "C-o") 'nrepl-jump-back)
+  )
 (add-hook 'clojure-mode-hook 'boymaas-clojure-test-mappings)
 
 

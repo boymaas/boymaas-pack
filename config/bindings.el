@@ -15,10 +15,29 @@
 (setq linum-format "%3d ")
 
 (setq tab-width 2)
-(add-hook 'coffee-mode-hook (lambda ()
-                             (setq evil-shift-width 2)
-                             (setq tab-width 2)
-                             (local-unset-key "TAB")))
+(add-hook 'coffee-mode-hook 'boymaas-coffee-mode-config)
+(defun boymaas-coffee-mode-config ()
+  (setq evil-shift-width 2)
+  (setq tab-width 2)
+  ;;(local-unset-key "\t")
+  )
+
+
+;; auto compllete by tab
+(setq ac-auto-start nil)
+
+;; this should change visual behaviour
+;;(setq evil-want-visual-char-semi-exclusive t)
+
+(eval-after-load "evil"
+  '(progn
+     ;; Navigation in autocomplete menues gets hijacked by evil
+     (define-key ac-completing-map (kbd "C-n") 'ac-next)
+     (define-key ac-completing-map (kbd "C-p") 'ac-previous)
+     ;; Let me stop autocompleting the emacs/evil way
+     (define-key ac-completing-map (kbd "C-g") 'ac-stop)
+     (define-key ac-completing-map (kbd "ESC") 'evil-normal-state)
+     (evil-make-intercept-map ac-completing-map)))
 
 
 ;; Ruby stuff
@@ -47,6 +66,10 @@
 ;; Utils contain helpers to help
 ;; with defining keys and such
 (require 'utils)
+
+;; set emacs state for
+(evil-set-initial-state 'magit-branch-manager-mode 'emacs)
+
 
 (define-key evil-normal-state-map ";;" 'evil-buffer)
 (define-key evil-normal-state-map ";h" 'help)

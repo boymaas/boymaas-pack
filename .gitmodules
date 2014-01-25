@@ -1,3 +1,6 @@
 [submodule "vendor/submodules/ruby-electric"]
 	path = vendor/submodules/ruby-electric
 	url = https://github.com/qoobaa/ruby-electric.git
+[submodule "vendor/submodules/smart-tab"]
+	path = vendor/submodules/smart-tab
+	url = https://github.com/genehack/smart-tab.git

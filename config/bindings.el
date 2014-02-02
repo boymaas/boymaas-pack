@@ -14,13 +14,32 @@
 (global-linum-mode)
 (setq linum-format "%3d ")
 
+(set-background-color "black")
+
 (setq tab-width 2)
-(add-hook 'coffee-mode-hook 'boymaas-coffee-mode-config)
-(defun boymaas-coffee-mode-config ()
+(add-hook 'coffee-mode-hook 'boymaas/coffee-mode-config)
+(defun boymaas/coffee-mode-config ()
   (setq evil-shift-width 2)
   (setq tab-width 2)
   ;;(local-unset-key "\t")
   )
+
+;;(require 'nrepl-ritz)
+
+
+;; kill process at point
+(define-key process-menu-mode-map (kbd "C-k") 'boymaas/delete-process-at-point)
+(evil-set-initial-state 'process-menu-mode 'emacs)
+(defun boymaas/delete-process-at-point ()
+  (interactive)
+  (let ((process (get-text-property (point) 'tabulated-list-id)))
+    (cond ((and process
+                (processp process))
+           (delete-process process)
+           (revert-buffer))
+          (t
+           (error "no process at point!")))))
+
 
 
 ;; auto compllete by tab
@@ -29,22 +48,35 @@
 ;; this should change visual behaviour
 ;;(setq evil-want-visual-char-semi-exclusive t)
 
-(eval-after-load "evil"
-  '(progn
-     ;; Navigation in autocomplete menues gets hijacked by evil
-     (define-key ac-completing-map (kbd "C-n") 'ac-next)
-     (define-key ac-completing-map (kbd "C-p") 'ac-previous)
-     ;; Let me stop autocompleting the emacs/evil way
-     (define-key ac-completing-map (kbd "C-g") 'ac-stop)
-     (define-key ac-completing-map (kbd "ESC") 'evil-normal-state)
-     (evil-make-intercept-map ac-completing-map)))
+;; (eval-after-load "evil"
+;;   '(progn
+;;      ;; Navigation in autocomplete menues gets hijacked by evil
+;;      ;(define-key ac-completing-map (kbd "<down>") 'ac-next)
+;;      ;(define-key ac-completing-map (kbd "<up>") 'ac-previous)
+;;      ;; Let me stop autocompleting the emacs/evil way
+;;      (define-key ac-completing-map (kbd "C-g") 'ac-stop)
+;;      (define-key ac-completing-map (kbd "ESC") 'evil-normal-state)
+;;      (evil-make-intercept-map ac-completing-map)))
 
+;; starting evil mode
+(evil-set-initial-state 'nrepl-dbg-mode 'emacs)
+;;(evil-set-initial-state 'nrepl-mode 'normal)
+(evil-set-initial-state 'grep-mode 'emacs)
+
+;; set emacs stte in macro-expansion-minor-mode
+(add-hook 'nrepl-macroexpansion-minor-mode-hook 'boymaas/nrepl-macro-expansion-config)
+(defun boymaas/nrepl-macro-expansion-config ()
+  (interactive)
+  ;;(define-key evil-normal-state-map "q" 'nrepl-popup-buffer-quit)
+  (evil-emacs-state))
+
+(evil-set-initial-state nrepl-macroexpansion-minor-mode 'emacs)
 
 ;; Ruby stuff
 
 ;; TODO: now installed via package system. Make this independent of that
-(require 'flymake-ruby)
-(add-hook 'ruby-mode-hook 'flymake-ruby-load)
+;;(require 'flymake-ruby)
+;;(add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 ;; Evil paste fix
 (evil-define-command bmaas-evil-paste-after-exp
@@ -77,8 +109,14 @@
 (define-key evil-normal-state-map ";X" 'smex)
 
 (define-key evil-normal-state-map ";v" (lambda() (interactive)(find-file "~/.live-packs/boymaas-pack/config/bindings.el")))
+(define-key evil-normal-state-map ";V" (lambda() (interactive)(dired "~/.live-packs/")))
+
 
 (define-key evil-normal-state-map ";gs" 'magit-status)
+
+
+(define-key evil-normal-state-map ";c" 'evilnc-comment-or-uncomment-lines)
+
 
 (define-key evil-normal-state-map ";b" 'ido-switch-buffer)
 (define-key evil-normal-state-map ";B" 'ibuffer)
@@ -89,37 +127,47 @@
 (define-key evil-normal-state-map ";j" 'bookmark-jump)
 (define-key evil-normal-state-map ";J" 'bookmark-jump-other-window)
 
-(defvar boymaas-test-toggle-func 'projectile-toggle-between-implementation-and-test)
+(defvar boymaas/test-toggle-func 'projectile-toggle-between-implementation-and-test)
 
 ;; Paredit customizations
 (define-key paredit-mode-map (read-kbd-macro "C-<up>") 'paredit-raise-sexp)
 
-(defun boymaas-open-test-in-split-window ()
+(defun boymaas/open-test-in-split-window ()
   (interactive)
   (delete-other-windows)
   (split-window-right)
   ;(rspec-toggle-spec-and-target)
-  (funcall boymaas-test-toggle-func))
+  (funcall boymaas/test-toggle-func)
+  )
 
-(define-key evil-normal-state-map ";." 'boymaas-open-test-in-split-window)
-(defun boymaas-ruby-test-mappings ()
+(defun boymaas/open-test-in-split-window-clojure ()
   (interactive)
-  (setq boymaas-test-toggle-func 'rspec-toggle-spec-and-target)
+  (boymaas/open-test-in-split-window)
+  (split-window-below)
+  (nrepl-switch-to-repl-buffer 1)
+  (windmove-up))
+
+
+(define-key evil-normal-state-map ";." 'boymaas/open-test-in-split-window)
+(defun boymaas/ruby-test-mappings ()
+  (interactive)
+  (setq boymaas/test-toggle-func 'rspec-toggle-spec-and-target)
   (define-key evil-normal-state-map ";t" 'rspec-verify)
   (define-key evil-normal-state-map ";T" 'rspec-verify-single)
   (define-key evil-normal-state-map ";r" 'rspec-rerun)
   (define-key evil-normal-state-map ";a" 'rspec-verify-all))
-(add-hook 'ruby-mode-hook 'boymaas-ruby-test-mappings)
+(add-hook 'ruby-mode-hook 'boymaas/ruby-test-mappings)
 
-(defun boymaas-clojure-test-mappings ()
+(defun boymaas/clojure-test-mappings ()
   (interactive)
-  (setq boymaas-test-toggle-func 'clojure-jump-between-tests-and-code)
+  (define-key evil-normal-state-map ";." 'boymaas/open-test-in-split-window-clojure)
+  (setq boymaas/test-toggle-func 'clojure-jump-between-tests-and-code)
   (define-key evil-normal-state-map ";t" 'clojure-test-run-test)
   (define-key evil-normal-state-map ";a" 'clojure-test-run-tests)
   (define-key evil-normal-state-map (read-kbd-macro "C-]") 'nrepl-jump)
   (define-key evil-normal-state-map (read-kbd-macro "C-o") 'nrepl-jump-back)
   )
-(add-hook 'clojure-mode-hook 'boymaas-clojure-test-mappings)
+(add-hook 'clojure-mode-hook 'boymaas/clojure-test-mappings)
 
 
 ;; Projectile bindings

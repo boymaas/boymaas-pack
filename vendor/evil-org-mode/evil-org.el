@@ -72,8 +72,8 @@
   "O" '(lambda () (interactive) (evil-org-eol-call 'org-insert-heading))
   "$" 'org-end-of-line
   "^" 'org-beginning-of-line
-  "<" 'org-metaleft
-  ">" 'org-metaright
+  ;;"<" 'org-metaleft
+  ;;">" 'org-metaright
   ";a" 'org-agenda
   "-" 'org-cycle-list-bullet
   (kbd "TAB") 'org-cycle)

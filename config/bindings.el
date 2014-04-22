@@ -16,6 +16,12 @@
 
 (set-background-color "black")
 
+;; disable show-paren-mode
+(show-paren-mode -1)
+
+;; default off
+(global-auto-complete-mode -1)
+
 (setq tab-width 2)
 (add-hook 'coffee-mode-hook 'boymaas/coffee-mode-config)
 (defun boymaas/coffee-mode-config ()
@@ -23,9 +29,6 @@
   (setq tab-width 2)
   ;;(local-unset-key "\t")
   )
-
-;;(require 'nrepl-ritz)
-
 
 ;; kill process at point
 (define-key process-menu-mode-map (kbd "C-k") 'boymaas/delete-process-at-point)
@@ -39,6 +42,13 @@
            (revert-buffer))
           (t
            (error "no process at point!")))))
+
+;; (set-keyboard-coding-system nil)
+
+;; (setq mac-option-key-is-meta t)
+;; (setq mac-command-key-is-meta t)
+;; (setq mac-command-modifier 'meta)
+;; (setq mac-option-modifier 'meta)
 
 
 
@@ -228,6 +238,12 @@
 (define-key evil-normal-state-map ";ef" 'nrepl-load-file)
 
 (define-key evil-normal-state-map ";en" 'nrepl-eval-ns-form)
+(define-key evil-normal-state-map ";er" 'boymaas/switch-to-repl-buffer)
+
+(defun boymaas/switch-to-repl-buffer ()
+  (interactive)
+  (nrepl-switch-to-repl-buffer 1))
+
 (define-key evil-visual-state-map ";er" 'nrepl-eval-region)
 (define-key evil-normal-state-map ";em" 'nrepl-macroexpand-1)
 (define-key evil-normal-state-map ";eM" 'nrepl-macroexpand-all)
@@ -298,3 +314,48 @@
             (mapconcat 'identity impl-segments "/"))))
 
 (setq clojure-test-implementation-for-fn 'clojure-test-implementation-with-prefix-for)
+
+
+
+;; Piece of code heloing in localizing templates inside a rails project
+(defun boymaas/rinari/locale-file-name ()
+  (let* ((relative-to-project-dir
+         (file-relative-name (buffer-file-name) (projectile-project-root)))
+        ;; assuming path always starts with app/views we
+        ;; remove first 2 elements of path and ofcourse the filename itself
+        (relative-dir-to-app-view
+         (butlast (cddr (split-string relative-to-project-dir "/"))))
+        (base-name (file-name-sans-extension (file-name-base relative-to-project-dir)
+                    ))
+        ;; now build direcoty
+        (locale-directory (join-string
+                           (append (list "config" "locales" "en") relative-dir-to-app-view (list base-name))
+                           "/"))
+
+        )
+    (join-string (list locale-directory "yml") ".")))
+
+(defun boymaas/rinari/yank-text-and-place-in-locale-file (start end)
+  (interactive "r")
+  (let (;; get the translation label using the minibuffer
+        (label (read-from-minibuffer "Translation label: "))
+        ;; get contents to be pasted into the localte file
+        (contents (buffer-substring (region-beginning) (region-end)))
+        (locale-filename (expand-file-name (boymaas/rinari/locale-file-name) (projectile-project-root))))
+    ;; delete region and replace with label
+    (delete-region start end)
+    (insert "= t(:" label ")")
+    ;; now open the locale file, expanded relative to project rool
+    ;; and append text, indented and all
+    (save-excursion
+      (with-current-buffer (find-file-noselect locale-filename)
+        (goto-char (point-max))
+        (newline)
+        (insert "  " label ": " contents)
+        (let ((locale-dir (file-name-directory locale-filename)))
+          (unless (file-directory-p locale-dir)
+              (make-directory locale-dir)))
+        (save-buffer)))
+    (switch-to-buffer (current-buffer))))
+
+(define-key evil-visual-state-map ";t" 'boymaas/rinari/yank-text-and-place-in-locale-file)

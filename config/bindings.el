@@ -134,8 +134,11 @@
 (define-key evil-normal-state-map ";f" 'projectile-find-file)
 (define-key evil-normal-state-map ";F" 'projectile-find-file-other-window)
 (define-key evil-normal-state-map ";el" 'dired)
-(define-key evil-normal-state-map ";j" 'bookmark-jump)
-(define-key evil-normal-state-map ";J" 'bookmark-jump-other-window)
+(define-key evil-normal-state-map ";j" 'bookmark-bmenu-list)
+(define-key evil-normal-state-map ";J" 'bookmark-set)
+(define-key evil-normal-state-map ";li" 'org-insert-link)
+(define-key evil-normal-state-map ";ls" 'org-store-link)
+(define-key evil-normal-state-map ";lo" 'org-open-at-point)
 
 (defvar boymaas/test-toggle-func 'projectile-toggle-between-implementation-and-test)
 
@@ -354,7 +357,7 @@
         (insert "  " label ": " contents)
         (let ((locale-dir (file-name-directory locale-filename)))
           (unless (file-directory-p locale-dir)
-              (make-directory locale-dir)))
+              (make-directory locale-dir 'true)))
         (save-buffer)))
     (switch-to-buffer (current-buffer))))
 

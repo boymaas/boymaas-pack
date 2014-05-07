@@ -111,6 +111,7 @@
 
 ;; set emacs state for
 (evil-set-initial-state 'magit-branch-manager-mode 'emacs)
+(evil-set-initial-state 'magit-cherry-mode 'emacs)
 
 
 (define-key evil-normal-state-map ";;" 'evil-buffer)

@@ -29,6 +29,16 @@
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.gtd$" . org-mode))
 
+
+;; undefine keys for org-mode-map, conflicting with winmove
+(set-key org-mode-map (kbd "<S-right>") nil)
+(set-key org-mode-map (kbd "<S-left>") nil)
+(set-key org-mode-map (kbd "<S-up>") nil)
+(set-key org-mode-map (kbd "<S-down>") nil)
+
+;; clockcum format for org-agenda-report
+(setq org-time-clocksum-format (quote (:hours "%d" :require-hours t :minutes ":%02d" :require-minutes t)))
+
 (setq org-completion-use-ido t)
 
 (setq org-startup-indented nil)

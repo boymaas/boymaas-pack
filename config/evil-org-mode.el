@@ -2,9 +2,13 @@
 
 (require 'evil-org)
 
-(require 'org)
-(require 'org-agenda)
-(require 'org-install)
+;; bmaas: we cannot require here. It will load org-requires out of
+;;        installation install
+;(require 'org)
+;(require 'org-agenda)
+;(require 'org-install)
+
+(require 'org-table)
 
 (require 'cal-move)
 
@@ -248,29 +252,21 @@
 (run-at-time "00:59" 3600 'org-save-all-org-buffers)
 
 ;; Publishing
+;(require 'org-publish)
+;(require 'org-exp)
+
 (setq org-publish-project-alist
-      '(("org-weblog"
+      '(("fortunebet"
          ;; Path to your org files.
-         :base-directory "~/Sites/weblog/org/"
-         :base-extension "org"
-
-         ;; Path to your Jekyll project.
-         :publishing-directory "~/Sites/weblog/jekyll/"
-         :recursive t
-         :publishing-function org-publish-org-to-html
-         :headline-levels 4
-         :html-extension "markdown"
-         :body-only t)
-
-        ("org-static-weblog"
-          :base-directory "~/Sites/weblog/org/"
-          :base-extension "png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf"
-          :publishing-directory "~/Sites/weblog/jekyll/attachments"
-          :recursive t
-          :publishing-function org-publish-attachment)
-
-        ("weblog" :components ("org-weblog"
-                               "org-static-weblog"))))
+         :base-directory "~/Sites/planning/"
+         :base-extension "NON-EXISTING"
+         :include [ "fortunebet.org" ]
+         :recursive nil
+         :publishing-function org-html-publish-to-html
+         ;; Path to your publishing directory.
+         :publishing-directory "/ssh:framino@framino:~/public"
+         :headline-levels 5
+         )))
 
 ;; strange thing this has to be set to nil otherwise
 ;; export won't happen
